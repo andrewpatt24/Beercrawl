@@ -1,55 +1,63 @@
-import math
+from math import radians, cos, sin, asin, sqrt
+from itertools import combinations
 
 def get_api_key():
 	with open('api_key','r') as f:
 		return f.read()
 
-def recalculate_coordinate(val,  _as=None):  
-  """ 
-    Accepts a coordinate as a tuple (degree, minutes, seconds) 
-    You can give only one of them (e.g. only minutes as a floating point number) and it will be duly 
-    recalculated into degrees, minutes and seconds. 
-    Return value can be specified as 'deg', 'min' or 'sec'; default return value is a proper coordinate tuple. 
-  """  
-  deg,  min,  sec = val  
-  # pass outstanding values from right to left  
-  min = (min or 0) + int(sec) / 60  
-  sec = sec % 60  
-  deg = (deg or 0) + int(min) / 60  
-  min = min % 60  
-  # pass decimal part from left to right  
-  dfrac,  dint = math.modf(deg)  
-  min = min + dfrac * 60  
-  deg = dint  
-  mfrac,  mint = math.modf(min)  
-  sec = sec + mfrac * 60  
-  min = mint  
-  if _as:  
-    sec = sec + min * 60 + deg * 3600  
-    if _as == 'sec': return sec  
-    if _as == 'min': return sec / 60  
-    if _as == 'deg': return sec / 3600  
-  return deg,  min,  sec  
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees)
+    http://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers. Use 3956 for miles
+    return c * r
 
 
-def points2distance(start,  end):  
-  """ 
-    Calculate distance (in kilometers) between two points given as (long, latt) pairs 
-    based on Haversine formula (http://en.wikipedia.org/wiki/Haversine_formula). 
-    Implementation inspired by JavaScript implementation from http://www.movable-type.co.uk/scripts/latlong.html 
-    Accepts coordinates as tuples (deg, min, sec), but coordinates can be given in any form - e.g. 
-    can specify only minutes: 
-    (0, 3133.9333, 0)  
-    is interpreted as  
-    (52.0, 13.0, 55.998000000008687) 
-    which, not accidentally, is the lattitude of Warsaw, Poland. 
-  """  
-  start_long = start[0] 
-  start_latt = start[1]
-  end_long = end[0]
-  end_latt = end[1] 
-  d_latt = end_latt - start_latt  
-  d_long = end_long - start_long  
-  a = math.sin(d_latt/2)**2 + math.cos(start_latt) * math.cos(end_latt) * math.sin(d_long/2)**2  
-  c = 2 * math.asin(math.sqrt(a))  
-  return 6371 * c 
+def get_centre_lat_long(ll1,ll2):
+  lats = [ll1['lat'],ll2['lat']]
+  lngs = [ll1['lng'],ll2['lng']]
+
+  cen = {
+    'lat': min(lats) + abs(max(lats)-min(lats))/2.,
+    'lng': min(lngs) + abs(max(lngs)-min(lngs))/2.,
+  }
+
+  return cen
+
+
+def get_lat_lng(gmaps,place_text):
+  return gmaps.geocode(place_text)[0]['geometry']['location']
+
+
+def distance_array(dist_matrix,value='distance'):
+  op = []
+  for row in dist_matrix['rows']:
+    #pass
+    op.append(map(lambda x: x[value]['value'],row['elements']))
+  #return dist_matrix
+  return op
+
+
+def calculate_distances(gmaps,start,end,place_names,n_places):
+  op = []
+  place_combs = combinations(place_names,n_places)
+  for places in place_combs:
+    routes = gmaps.directions(
+      start,
+          end,
+          waypoints=list(places),
+          optimize_waypoints=True
+          )
+    for route in routes:
+      op.append([list(places), sum(map(lambda x: x['distance']['value'],route['legs']))])
+  return op
