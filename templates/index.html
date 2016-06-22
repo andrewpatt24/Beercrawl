@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <title>BeerCrawlr</title>
+ 
+ 
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+ 
+ 
+</head>
+
+<style>
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
+/*#map {
+        width: 500px;
+        height: 500px;
+      }*/
+
+</style>
+<body>
+ 
+    <div class="container">
+        <div class="header">
+            <nav>
+                <ul class="nav nav-pills pull-right">
+                    <li role="presentation" class="active"><a href="#">BeerCrawlr</a>
+                    </li>
+                    <li role="presentation"><a href="#">about</a>
+                    </li>
+                    <li role="presentation"><a href="showSignUp">Contact us</a>
+                    </li>
+                </ul>
+            </nav>
+            <h3 class="text-muted">BeerCrawlr</h3>
+        </div>
+ 
+        <div class="jumbotron">
+            <h1>Bring me Beer!</h1>
+
+            <!-- Need the following inputs-->
+            <!-- start_string = 'The Anchor, 34 Park St, Southwark, London SE1 9EF'
+                end_string = 'Southwark Brewing Company'
+                n_places = 2
+                mode="bicycling" 
+                -->
+            <form role="form">
+                <div class="form-group">
+                    <label for="start">Where do you want to start?</label>
+                    <input type="text" class="form-control" name="start" value="{{init_start}}">
+                </div>
+                <div class="form-group">
+                    <label for="end">
+                        Where do you want to end?
+                    </label>
+                    <input type="text" class="form-control" name="end" value="{{init_end}}">
+                </div>
+                <div class="form-group">
+                <label for="usr">How do you want to travel?</label>
+                    <label class="radio-inline">
+                        <input type="radio" name="travel" value="walking" checked>
+                        Walking
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="travel" value="bicycling">
+                        Cycling
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="stops">How many stops in between?</label>
+                    <select class="form-control" name='stops' id="stops">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                    </select>
+                </div>
+                <p>
+                    <a  id="get_directions" class="btn btn-lg btn-success" role="button">Give me beer!</a>
+                    <a id='loading' class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</a>
+                </p>
+            </form>
+            
+        </div>
+
+        <div id='map'></div>
+ 
+
+
+
+
+
+        <footer class="footer">
+            <p>&copy; Andrew Patterson 2016</p>
+        </footer>
+ 
+    </div>
+</body>
+ 
+ <script type="text/javascript" src="static/jquery-3.0.0.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}"></script>
+ <script type="text/javascript">
+
+ function initMap() {
+    var mapDiv = document.getElementById('map');
+    var map = new google.maps.Map(
+            mapDiv,
+            {
+                center: {lat: 44.540, lng: -78.546},
+                zoom: 8
+            }); 
+}
+
+$(function() {
+
+    function reset_bounds(data) {
+        bdata = data['directions'][0]['bounds']
+        var bounds = new google.maps.LatLngBounds();
+
+        for (b in bdata) {
+            var LatLng = new google.maps.LatLng(bdata[b]); 
+            bounds.extend(LatLng);
+        }
+        map.fitBounds(bounds);
+    }
+
+    function add_directions(data) {
+        return false
+    }
+
+
+    $('#get_directions').click(function() {
+
+        var data_send = $('form').serialize()
+        console.log(data_send)
+
+        $('#get_directions').hide();
+        $('#loading').show();
+ 
+        $.ajax({
+            url: '/directions',
+            data: data_send,
+            dataType: "json",
+            success: function(response) {
+
+                console.log(response);
+
+                // reset bounds of graph to local area
+                //reset_bounds(response)
+
+                // add places and directions to map
+                //add_directions(response)
+
+                $('#map').show();
+
+                $('#get_directions').show();
+
+                $('#loading').hide();  
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+
+
+    });
+
+    var mapDiv = document.getElementById('map');
+    var map = new google.maps.Map(
+            mapDiv,
+            {
+                center: {lat: 44.540, lng: -78.546},
+                zoom: 8
+            }); 
+
+    $('#map').hide();
+    $('#loading').hide();
+
+});
+
+ </script>
+</html>
