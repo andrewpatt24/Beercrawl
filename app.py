@@ -45,7 +45,17 @@ def signUp():
 	
 	print bc.directions
 
-	return json.dumps({'directions':bc.directions})
+	return json.dumps(
+		{
+		'directions':bc.directions,
+		'parameters':{
+			'start':_start,
+			'end':_end,
+			'travel':_travel,
+			'stops':_stops,
+			'waypoints':bc.final_waypoints
+		}}
+		)
 
 
 if __name__ == "__main__":
