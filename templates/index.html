@@ -33,6 +33,7 @@
 #map {
         height: 500px;
         width: 500px;
+        margin:auto;
       }
 
 </style>
@@ -116,7 +117,7 @@
 </body>
  
  <script type="text/javascript" src="static/jquery-3.0.0.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&libraries=places"></script>
  <script type="text/javascript">
 
  var map;
@@ -129,6 +130,12 @@ $(function() {
         'walking':google.maps.TravelMode.WALKING,
         'bicycling':google.maps.TravelMode.BICYCLING
     }
+
+    //create inputs as autocompletes
+    var input_start = /** @type {!HTMLInputElement} */(document.getElementById('start'));
+    var input_end = /** @type {!HTMLInputElement} */(document.getElementById('end'));
+    var autocomplete_start = new google.maps.places.Autocomplete(input_start);
+    var autocomplete_end = new google.maps.places.Autocomplete(input_end);
 
     //main function on click "give me beer!"
     $('#get_directions').click(function() {

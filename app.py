@@ -9,6 +9,12 @@ radius_factor = 1
 keywords = ['bar','beer']
 api_key = get_api_key()
 
+
+##Test case
+##start : Town of Ramsgate, Wapping High Street, London, United Kingdom
+##end: The Prospect of Whitby, Wapping Wall, London, United Kingdom
+## waypoint should find: Captain Kidd
+
 @app.route('/')
 def main():
 
@@ -59,4 +65,4 @@ def signUp():
 
 
 if __name__ == "__main__":
-	app.run()
+	app.run(debug=True)
