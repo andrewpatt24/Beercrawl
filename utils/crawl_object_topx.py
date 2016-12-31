@@ -5,6 +5,7 @@ import googlemaps
 class BeerCrawler:
 	"""
 	BeerCrawler class to get a beer crawl direction set
+	global class that holds functions by all BeerCrawler classes
 	"""
 	def __init__(self,start_string,end_string,n_places,radius_factor,keywords,mode,api_key):
 		#Intitialise the googlemaps client
@@ -70,17 +71,9 @@ class BeerCrawler:
 			if 'rating' not in self.nearby[i]['place_info']['result'].keys():
 				self.nearby[i]['place_info']['result']['rating'] = 0
 
-		#self.place_ids = map(lambda x: x['place_id'],self.nearby)
-		#self.place_lat_lng = map(lambda x: x['location'],self.nearby)
-		#print 'Places ids.'
-		#print self.place_ids
-		#self.place_info = map(lambda x: self.gmaps.place(x),self.place_ids)
-		#print 'Places info.'
-		#print self.place_info
-		#self.place_names = map(lambda x: x['result']['formatted_address'],self.place_info)
-		#get_rating = lambda x: x['result']['rating'] if 'rating' in x['result'].keys() else 0
-		#self.place_ratings = map(get_rating,self.place_info)
 
+
+class TopXBeerCrawler(BeerCrawler):
 	def getTopXWaypoint(self,w=1):
 		"""
 		Gets tops X places by ratings
@@ -89,32 +82,6 @@ class BeerCrawler:
 				self.nearby,
 				key=lambda x: x['place_info']['result']['rating']
 			)[0:w]
-
-	#def calcDistances(self):
-		#"""
-		#Use calculate distances function to calcualte distances between all places
-		#"""
-		#self.distances = self.calculate_distances(
-			#self.gmaps,
-			#self.start,
-			#self.end,
-			#self.place_names,
-			#self.n_places
-			#)
-
-	def getMinRoute(self):
-		"""
-		Get directions for route with minimum distance
-		"""
-		self.min_dist = min([x[1] for x in self.distances])
-		self.final_waypoints = [x for x in self.distances if x[1]==self.min_dist][0][0]
-
-		self.directions = self.gmaps.directions(
-				self.start,
-				self.end,
-				mode=self.mode,
-				waypoints=self.final_waypoints
-				)
 
 	def getTopPlacesRoute(self):
 		"""
@@ -129,18 +96,7 @@ class BeerCrawler:
 				waypoints=self.final_waypoints
 				)
 
-	#def calculateMinDistanceCrawl(self):
-		#"""
-		#Wrap up function to calcualte crawl
-		#"""
-		#self.getLatLngs()
-		#self.findCentre()
-		#self.calcRadius()
-		#self.getNearbyPlaces()
-		#self.calcDistances()
-		#self.getMinRoute()
-
-	def calculateTopXCrawl(self):
+	def calculateCrawl(self):
 		"""
 		Wrap up function to calcualte crawl
 		"""

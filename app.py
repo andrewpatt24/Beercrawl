@@ -18,8 +18,8 @@ api_key = get_api_key()
 @app.route('/')
 def main():
 
-	start_string = "The Anchor, 34 Park St, Southwark, London SE1 9EF"
-	end_string = "Southwark Brewing Company"
+	start_string = "Town of Ramsgate, Wapping High Street, London, United Kingdom"
+	end_string = "The Prospect of Whitby, Wapping Wall, London, United Kingdom"
 	
 	return render_template(
 		'index.html',
@@ -47,7 +47,7 @@ def signUp():
 		api_key=api_key
 		)
 
-	bc.calculateCrawl()
+	bc.calculateTopXCrawl()
 	
 	print bc.directions
 
